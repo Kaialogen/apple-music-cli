@@ -4,9 +4,17 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "cryptography>=46.0.3",
+    "dotenv>=0.9.9",
+    "pyjwt>=2.10.1",
+    "requests>=2.32.5",
+    "types-requests>=2.32.4.20260107",
+]
 
 [dependency-groups]
 dev = [
+    "mypy>=1.19.1",
     "pytest>=9.0.2",
+    "pytest-cov>=7.0.0",
 ]

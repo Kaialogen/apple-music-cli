@@ -214,3 +214,12 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Apple Music private keys
+*.p8
+
+# Local secrets
+.env
+
+# Token cache
+~/.config/apple-music/

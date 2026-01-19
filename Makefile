@@ -6,7 +6,7 @@ lint-ruff:
 	uv run ruff check .
 
 lint-mypy:
-	uv run mypy main.py
+	uv run mypy ./cli
 
 format:
 	uv run ruff format .
@@ -15,4 +15,4 @@ test:
 	uv run pytest -q -v --cov
 
 run:
-	uv run python3 main.py
+	uv run python3 ./cli/main.py

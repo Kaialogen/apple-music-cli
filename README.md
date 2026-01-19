@@ -1,4 +1,4 @@
-# Apple Music Playlist Saver
+# Apple Music CLI Playlist Saver
 Apple Music Playlist Saver is a Python CLI tool that allows users to save and manage their Apple Music playlists efficiently. This application provides features to back up playlists, export them in various formats, and share them with friends.
 
 ## Features

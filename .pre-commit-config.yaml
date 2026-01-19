@@ -18,3 +18,12 @@ repos:
     rev: v1.5.0
     hooks:
       - id: detect-secrets
+        args: ['--baseline', '.secrets.baseline']
+  - repo: local
+    hooks:
+      - id: pytest
+        name: pytest
+        entry: ./.venv/bin/pytest tests
+        language: python
+        pass_filenames: false
+        always_run: true

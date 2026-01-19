@@ -1,12 +1,6 @@
-import os
 from time import time
-from typing import cast
 
 import jwt
-import requests
-from dotenv import load_dotenv
-
-load_dotenv()
 
 
 class InvalidTeamIdException(Exception):
@@ -15,18 +9,6 @@ class InvalidTeamIdException(Exception):
 
 class InvalidKeyIdException(Exception):
     pass
-
-
-TEAM_ID: str | None = os.getenv("APPLE_MUSIC_TEAM_ID")
-KEY_ID: str | None = os.getenv("APPLE_MUSIC_KEY_ID")
-PRIVATE_KEY_PATH: str | None = os.getenv("APPLE_MUSIC_PRIVATE_KEY_PATH")
-
-if not all([TEAM_ID, KEY_ID, PRIVATE_KEY_PATH]):
-    raise RuntimeError(
-        "Missing Apple Music credentials. "
-        "Set APPLE_MUSIC_TEAM_ID, APPLE_MUSIC_KEY_ID, "
-        "and APPLE_MUSIC_PRIVATE_KEY_PATH."
-    )
 
 
 def generate_jwt(secret_key_file_path: str, team_id: str, key_id: str) -> str:
@@ -55,24 +37,3 @@ def generate_jwt(secret_key_file_path: str, team_id: str, key_id: str) -> str:
             jwt_payload, f.read(), algorithm="ES256", headers={"kid": key_id}
         )
         return jwt_token
-
-
-def get_data(url: str, jwt: str) -> None:
-    headers: dict[str, str] = {"Authorization": "Bearer " + jwt}
-    response: requests.Response = requests.get(url, headers=headers)
-    print(response.json())
-
-
-def main():
-    key_id: str = cast(str, KEY_ID)
-    team_id: str = cast(str, TEAM_ID)
-    secret_key_file_path: str = cast(str, PRIVATE_KEY_PATH)
-    url: str = "https://api.music.apple.com/v1/catalog/us/songs/203709340"
-
-    jwt: str = generate_jwt(secret_key_file_path, team_id, key_id)
-
-    get_data(url, jwt)
-
-
-if __name__ == "__main__":
-    main()

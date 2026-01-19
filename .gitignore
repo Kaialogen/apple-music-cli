@@ -218,6 +218,9 @@ __marimo__/
 # Apple Music private keys
 *.p8
 
+# Allow test key explicitly
+!tests/fixtures/test_private_key.p8
+
 # Local secrets
 .env
 

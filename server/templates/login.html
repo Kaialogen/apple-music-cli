@@ -1,0 +1,30 @@
+<!-- MusicKit Login Code -->
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://js-cdn.music.apple.com/musickit/v1/musickit.js"></script>
+</head>
+<body>
+  <button onclick="login()">Login with Apple Music</button>
+
+  <script>
+    async function login() {
+      MusicKit.configure({
+        developerToken: "{{ DEV_TOKEN }}",
+        app: { name: "AppleMusicCLI", build: "1.0" }
+      });
+
+      const music = MusicKit.getInstance();
+      const token = await music.authorize();
+
+      await fetch("/callback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token })
+      });
+
+      document.body.innerHTML = "<h2>Login successful. You may close this window.</h2>";
+    }
+  </script>
+</body>
+</html>

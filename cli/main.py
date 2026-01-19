@@ -2,7 +2,7 @@ import os
 from typing import cast
 
 import requests
-from auth import generate_jwt
+from auth import generate_jwt, start_auth_flow
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -35,6 +35,7 @@ def main() -> None:
     jwt: str = generate_jwt(secret_key_file_path, team_id, key_id)
 
     get_song_data(url, jwt)
+    start_auth_flow()
 
 
 if __name__ == "__main__":

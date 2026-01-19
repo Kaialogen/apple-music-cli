@@ -1,7 +1,7 @@
 import threading
+import time
 import webbrowser
 from pathlib import Path
-from time import time
 
 import jwt
 import uvicorn
@@ -37,7 +37,7 @@ def generate_jwt(secret_key_file_path: str, team_id: str, key_id: str) -> str:
     if len(key_id) != 10:
         raise InvalidKeyIdException
 
-    current_unix_seconds = int(time())
+    current_unix_seconds = int(time.time())
     with open(secret_key_file_path, "rb") as f:
         jwt_payload = {
             "exp": current_unix_seconds + (24 * 60 * 60),  # expiration time

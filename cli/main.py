@@ -2,8 +2,9 @@ import os
 from typing import cast
 
 import requests
-from auth import generate_jwt, start_auth_flow
 from dotenv import load_dotenv
+
+from cli.auth import generate_jwt, start_auth_flow
 
 load_dotenv()
 
@@ -30,11 +31,12 @@ def main() -> None:
     key_id: str = cast(str, KEY_ID)
     team_id: str = cast(str, TEAM_ID)
     secret_key_file_path: str = cast(str, PRIVATE_KEY_PATH)
-    url: str = "https://api.music.apple.com/v1/catalog/us/songs/203709340"
+    # url: str = "https://api.music.apple.com/v1/catalog/us/songs/203709340"
 
     jwt: str = generate_jwt(secret_key_file_path, team_id, key_id)
+    print(jwt)
 
-    get_song_data(url, jwt)
+    # get_song_data(url, jwt)
     start_auth_flow()
 
 

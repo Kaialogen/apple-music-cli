@@ -15,4 +15,4 @@ test:
 	uv run pytest -q -v --cov
 
 run:
-	uv run python3 ./cli/main.py
+	uv run python -m cli.main

@@ -5,6 +5,7 @@ import requests
 from dotenv import load_dotenv
 
 from cli.auth import generate_jwt, start_auth_flow
+from cli.config import TOKEN_PATH
 
 load_dotenv()
 
@@ -27,6 +28,10 @@ def get_song_data(url: str, jwt: str) -> None:
     print(response.json())
 
 
+def token_exists() -> bool:
+    return TOKEN_PATH.exists() and TOKEN_PATH.read_text().strip() != ""
+
+
 def main() -> None:
     key_id: str = cast(str, KEY_ID)
     team_id: str = cast(str, TEAM_ID)
@@ -34,10 +39,11 @@ def main() -> None:
     # url: str = "https://api.music.apple.com/v1/catalog/us/songs/203709340"
 
     jwt: str = generate_jwt(secret_key_file_path, team_id, key_id)
-    print(jwt)
+    print(f"JWT TOKEN: {jwt}")
 
     # get_song_data(url, jwt)
-    start_auth_flow()
+    if not token_exists():
+        start_auth_flow()
 
 
 if __name__ == "__main__":

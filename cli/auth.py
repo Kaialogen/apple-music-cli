@@ -1,12 +1,12 @@
 import threading
 import time
 import webbrowser
-from pathlib import Path
 
 import jwt
 import uvicorn
 
-TOKEN_PATH = Path.home() / ".config" / "apple-music" / "token"
+from cli.config import TOKEN_PATH
+
 TIMEOUT_SECONDS = 120
 POLL_INTERVAL = 0.5
 

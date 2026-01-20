@@ -34,5 +34,6 @@ def login() -> HTMLResponse:
 # Receive and store Music User Token
 @app.post("/callback")
 def callback(payload: TokenPayload) -> dict[str, str]:
+    TOKEN_PATH.parent.mkdir(parents=True, exist_ok=True)
     TOKEN_PATH.write_text(payload.token)
     return {"status": "ok"}

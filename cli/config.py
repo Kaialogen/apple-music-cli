@@ -1,3 +1,3 @@
 from pathlib import Path
 
-TOKEN_PATH = Path("~/.config/apple-music/token")
+TOKEN_PATH: Path = Path.home() / ".config" / "apple_music_cli" / "music_user_token"

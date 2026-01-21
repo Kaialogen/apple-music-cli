@@ -54,6 +54,47 @@ def get_all_playlists(jwt_token) -> None:
     print_playlists(response_dict)
 
 
+def get_playlist_by_id(jwt_token: str, playlist_id: str) -> None:
+    """
+    Docstring for get_playlist_by_id
+
+    :param jwt_token: Developer token string
+    """
+    url: str = f"https://api.music.apple.com/v1/me/library/playlists/{playlist_id}"
+    music_user_token: str = TOKEN_PATH.read_text().strip()
+    headers: dict[str, str] = {
+        "Authorization": "Bearer " + jwt_token,
+        "Music-User-Token": music_user_token,
+    }
+    response: requests.Response = requests.get(url, headers=headers)
+    logging.info("Found specific playlist")
+
+    response_dict = response.json()
+    print(response_dict)
+
+
+def get_songs_in_playlist(jwt_token: str, playlist_id: str) -> None:
+    """
+    Gets songs from the specified playlist, limited to 100 songs internally.
+
+    :param jwt_token: Developer token string
+    :param playlist_id: id of the playlist to query
+    """
+    url: str = (
+        f"https://api.music.apple.com/v1/me/library/playlists/{playlist_id}/tracks"
+    )
+    music_user_token: str = TOKEN_PATH.read_text().strip()
+    headers: dict[str, str] = {
+        "Authorization": "Bearer " + jwt_token,
+        "Music-User-Token": music_user_token,
+    }
+    response: requests.Response = requests.get(url, headers=headers)
+    logging.info("Found specific playlist")
+
+    response_dict = response.json()
+    print(response_dict)
+
+
 def print_playlists(payload: dict) -> None:
     for item in payload.get("data", []):
         playlist_id = item.get("id")
@@ -75,11 +116,11 @@ def parse_args():
 
     parser.add_argument(
         "COMMAND",
-        help="Command to execute: Accepted commands - test, all-playlists, export",
+        help="Command to execute: Accepted commands - test, all-playlists, export, playlist",
         type=str,
     )
 
-    parser.add_argument("--playlist-id", type=str, help="id of playlist to backup")
+    parser.add_argument("--playlistID", type=str, help="id of playlist to backup")
 
     parser.add_argument("-f", "--format", type=str, help="output file format")
 
@@ -103,6 +144,14 @@ def main() -> None:
         if not token_exists():
             start_auth_flow()
         get_all_playlists(jwt)
+    elif args.COMMAND == "playlist" and args.playlistID:
+        if not token_exists():
+            start_auth_flow()
+        get_playlist_by_id(jwt, args.playlistID)
+    elif args.COMMAND == "export" and args.playlistID:
+        if not token_exists():
+            start_auth_flow()
+        get_songs_in_playlist(jwt, args.playlistID)
 
 
 if __name__ == "__main__":

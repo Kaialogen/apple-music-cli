@@ -70,15 +70,20 @@ def token_exists() -> bool:
 def parse_args():
     parser = argparse.ArgumentParser(
         prog="Apple Music CLI Playlist Saver",
-        description="Python CLI tool to help users save Apple Music playlist data into CSV, TXT format",
+        description="Python CLI tool to help users save Apple Music playlist data into various file formats.",
     )
 
     parser.add_argument(
         "COMMAND",
-        help="Command to execute: Accepted commands - test, playlist",
+        help="Command to execute: Accepted commands - test, all-playlists, export",
         type=str,
-        required=True,
     )
+
+    parser.add_argument("--playlist-id", type=str, help="id of playlist to backup")
+
+    parser.add_argument("-f", "--format", type=str, help="output file format")
+
+    parser.add_argument("-o", "--output", help="Output file.")
 
     return parser.parse_args()
 
@@ -94,7 +99,7 @@ def main() -> None:
 
     if args.COMMAND == "test":
         get_song_data(jwt)
-    elif args.COMMAND == "playlist":
+    elif args.COMMAND == "all-playlists":
         if not token_exists():
             start_auth_flow()
         get_all_playlists(jwt)

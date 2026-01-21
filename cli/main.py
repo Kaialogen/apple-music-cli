@@ -28,6 +28,33 @@ def get_song_data(url: str, jwt: str) -> None:
     print(response.json())
 
 
+def get_all_playlists(jwt_token) -> None:
+    url: str = "https://api.music.apple.com/v1/me/library/playlists"
+    music_user_token: str = TOKEN_PATH.read_text().strip()
+    headers: dict[str, str] = {
+        "Authorization": "Bearer " + jwt_token,
+        "Music-User-Token": music_user_token,
+    }
+    response: requests.Response = requests.get(url, headers=headers)
+    print(response.json())
+
+    # Convert json to dict
+    response_dict = response.json()
+
+    playlists = print_playlists(response_dict)
+
+    print(playlists)
+
+
+def print_playlists(payload: dict) -> None:
+    for item in payload.get("data", []):
+        playlist_id = item.get("id")
+        name = item.get("attributes", {}).get("name")
+
+        if playlist_id and name:
+            print(f"{name} ({playlist_id})")
+
+
 def token_exists() -> bool:
     return TOKEN_PATH.exists() and TOKEN_PATH.read_text().strip() != ""
 
@@ -39,11 +66,12 @@ def main() -> None:
     # url: str = "https://api.music.apple.com/v1/catalog/us/songs/203709340"
 
     jwt: str = generate_jwt(secret_key_file_path, team_id, key_id)
-    print(f"JWT TOKEN: {jwt}")
 
     # get_song_data(url, jwt)
     if not token_exists():
         start_auth_flow()
+
+    get_all_playlists(jwt)
 
 
 if __name__ == "__main__":

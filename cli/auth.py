@@ -78,7 +78,6 @@ def wait_for_token() -> str:
         if TOKEN_PATH.exists():
             token: str = TOKEN_PATH.read_text().strip()
             if token:
-                print(token)
                 return token
 
         if time.monotonic() - start > TIMEOUT_SECONDS:

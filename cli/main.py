@@ -36,14 +36,11 @@ def get_all_playlists(jwt_token) -> None:
         "Music-User-Token": music_user_token,
     }
     response: requests.Response = requests.get(url, headers=headers)
-    print(response.json())
 
     # Convert json to dict
     response_dict = response.json()
 
-    playlists = print_playlists(response_dict)
-
-    print(playlists)
+    print_playlists(response_dict)
 
 
 def print_playlists(payload: dict) -> None:

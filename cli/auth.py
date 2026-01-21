@@ -1,6 +1,18 @@
-from time import time
+import threading
+import time
+import webbrowser
 
 import jwt
+import uvicorn
+
+from cli.config import TOKEN_PATH
+
+TIMEOUT_SECONDS = 120
+POLL_INTERVAL = 0.5
+
+
+class AuthTimeoutError(RuntimeError):
+    pass
 
 
 class InvalidTeamIdException(Exception):
@@ -25,7 +37,7 @@ def generate_jwt(secret_key_file_path: str, team_id: str, key_id: str) -> str:
     if len(key_id) != 10:
         raise InvalidKeyIdException
 
-    current_unix_seconds = int(time())
+    current_unix_seconds = int(time.time())
     with open(secret_key_file_path, "rb") as f:
         jwt_payload = {
             "exp": current_unix_seconds + (24 * 60 * 60),  # expiration time
@@ -37,3 +49,38 @@ def generate_jwt(secret_key_file_path: str, team_id: str, key_id: str) -> str:
             jwt_payload, f.read(), algorithm="ES256", headers={"kid": key_id}
         )
         return jwt_token
+
+
+def start_auth_flow():
+    threading.Thread(
+        target=lambda: uvicorn.run(
+            "server.app:app",
+            host="127.0.0.1",
+            port=3000,
+            log_level="error",
+        ),
+        daemon=True,
+    ).start()
+
+    webbrowser.open("http://localhost:3000/login")
+    wait_for_token()
+
+
+def wait_for_token() -> str:
+    """
+    Block until the Music User Token is written by the auth server.
+
+    :return: The music user token as a string.
+    """
+    start = time.monotonic()
+
+    while True:
+        if TOKEN_PATH.exists():
+            token: str = TOKEN_PATH.read_text().strip()
+            if token:
+                return token
+
+        if time.monotonic() - start > TIMEOUT_SECONDS:
+            raise AuthTimeoutError("Timed out waiting for Apple Music authorisation.")
+
+        time.sleep(POLL_INTERVAL)

@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 
 from cli.auth import generate_jwt, start_auth_flow
 from cli.config import TOKEN_PATH
+from cli.file_output import write_songs_to_csv, write_songs_to_json
 
 load_dotenv()
 logger: logging.Logger = logging.getLogger(__name__)
@@ -73,7 +74,7 @@ def get_playlist_by_id(jwt_token: str, playlist_id: str) -> None:
     print(response_dict)
 
 
-def get_songs_in_playlist(jwt_token: str, playlist_id: str) -> None:
+def get_songs_in_playlist(jwt_token: str, playlist_id: str) -> dict:
     """
     Gets songs from the specified playlist, limited to 100 songs internally.
 
@@ -92,7 +93,7 @@ def get_songs_in_playlist(jwt_token: str, playlist_id: str) -> None:
     logging.info("Found specific playlist")
 
     response_dict = response.json()
-    print(response_dict)
+    return response_dict
 
 
 def print_playlists(payload: dict) -> None:
@@ -122,7 +123,9 @@ def parse_args():
 
     parser.add_argument("--playlistID", type=str, help="id of playlist to backup")
 
-    parser.add_argument("-f", "--format", type=str, help="output file format")
+    parser.add_argument(
+        "-f", "--format", type=str, help="output file format", default="json"
+    )
 
     parser.add_argument("-o", "--output", help="Output file.")
 
@@ -151,7 +154,11 @@ def main() -> None:
     elif args.COMMAND == "export" and args.playlistID:
         if not token_exists():
             start_auth_flow()
-        get_songs_in_playlist(jwt, args.playlistID)
+        output = get_songs_in_playlist(jwt, args.playlistID)
+        if args.format == "json":
+            write_songs_to_json(output, args.output)
+        elif args.format == "csv":
+            write_songs_to_csv(output, args.output)
 
 
 if __name__ == "__main__":

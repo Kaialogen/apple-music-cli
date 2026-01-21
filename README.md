@@ -2,6 +2,8 @@
 
 Apple Music Playlist Saver is a Python CLI tool that allows users to save and manage their Apple Music playlists efficiently. This application provides features to back up playlists, export them in various formats, and share them with friends.
 
+> Disclaimer: Apple Music API is an unofficial application and not affiliated with Apple.
+
 ## Features
 
 - Backup Apple Music playlists to local storage.
@@ -24,7 +26,9 @@ python -m cli.main --help
 ```
 
 - Export a playlist to CSV:
-  `python -m cli.main export --playlist-id <PLAYLIST_ID> --format csv --out exports/playlist.csv`
+  ```python
+  python -m cli.main export --playlist-id <PLAYLIST_ID> --format csv --out exports/playlist.csv
+  ```
 
 You can also run the project using the Makefile targets on systems with make:
 

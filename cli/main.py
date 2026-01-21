@@ -1,3 +1,4 @@
+import logging
 import os
 from typing import cast
 
@@ -8,6 +9,7 @@ from cli.auth import generate_jwt, start_auth_flow
 from cli.config import TOKEN_PATH
 
 load_dotenv()
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 TEAM_ID: str | None = os.getenv("APPLE_MUSIC_TEAM_ID")
@@ -36,6 +38,7 @@ def get_all_playlists(jwt_token) -> None:
         "Music-User-Token": music_user_token,
     }
     response: requests.Response = requests.get(url, headers=headers)
+    logging.info("Got all playlists")
 
     # Convert json to dict
     response_dict = response.json()
@@ -72,4 +75,5 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     main()

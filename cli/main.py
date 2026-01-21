@@ -1,3 +1,4 @@
+import argparse
 import logging
 import os
 from typing import cast
@@ -24,7 +25,14 @@ if not all([TEAM_ID, KEY_ID, PRIVATE_KEY_PATH]):
     )
 
 
-def get_song_data(url: str, jwt: str) -> None:
+def get_song_data(jwt: str) -> None:
+    """
+    Test function that should take a developer token and a known good URL and return data from the public catalogue.
+    "Born in the U.S.A" by Bruce Springsteen should print to the terminal if the developer token is correct.
+
+    :param jwt: Developer token string
+    """
+    url: str = "https://api.music.apple.com/v1/catalog/us/songs/203709340"
     headers: dict[str, str] = {"Authorization": "Bearer " + jwt}
     response: requests.Response = requests.get(url, headers=headers)
     print(response.json())
@@ -59,19 +67,37 @@ def token_exists() -> bool:
     return TOKEN_PATH.exists() and TOKEN_PATH.read_text().strip() != ""
 
 
+def parse_args():
+    parser = argparse.ArgumentParser(
+        prog="Apple Music CLI Playlist Saver",
+        description="Python CLI tool to help users save Apple Music playlist data into CSV, TXT format",
+    )
+
+    parser.add_argument(
+        "COMMAND",
+        help="Command to execute: Accepted commands - test, playlist",
+        type=str,
+        required=True,
+    )
+
+    return parser.parse_args()
+
+
 def main() -> None:
+    args = parse_args()
+
     key_id: str = cast(str, KEY_ID)
     team_id: str = cast(str, TEAM_ID)
     secret_key_file_path: str = cast(str, PRIVATE_KEY_PATH)
-    # url: str = "https://api.music.apple.com/v1/catalog/us/songs/203709340"
 
     jwt: str = generate_jwt(secret_key_file_path, team_id, key_id)
 
-    # get_song_data(url, jwt)
-    if not token_exists():
-        start_auth_flow()
-
-    get_all_playlists(jwt)
+    if args.COMMAND == "test":
+        get_song_data(jwt)
+    elif args.COMMAND == "playlist":
+        if not token_exists():
+            start_auth_flow()
+        get_all_playlists(jwt)
 
 
 if __name__ == "__main__":

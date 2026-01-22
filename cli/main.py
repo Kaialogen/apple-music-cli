@@ -46,13 +46,34 @@ def get_all_playlists(jwt_token) -> None:
         "Authorization": "Bearer " + jwt_token,
         "Music-User-Token": music_user_token,
     }
-    response: requests.Response = requests.get(url, headers=headers)
-    logging.info("Got all playlists")
+    try:
+        response: requests.Response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        logging.info("Got all playlists")
+    except requests.exceptions.HTTPError as e:
+        if e.response.status_code == 401:
+            print(
+                "Unauthorized: A response indicating an incorrect Authorization header."
+            )
+        elif e.response.status_code == 403:
+            print(
+                "Forbidden: A response indicating invalid or insufficient authentication."
+            )
+        elif e.response.status_code == 429:
+            print("Too Many Requests. Rate limited by Apple servers")
+        elif e.response.status_code == 500:
+            print(
+                "Internal Server Error: A response indicating an error occurred on the server."
+            )
+        else:
+            print(f"HTTP error occurred: {e}")
+        return None
 
     # Convert json to dict
     response_dict = response.json()
 
-    print_playlists(response_dict)
+    playlists = print_playlists(response_dict)
+    print(playlists)
 
 
 def get_playlist_by_id(jwt_token: str, playlist_id: str) -> None:
@@ -96,13 +117,13 @@ def get_songs_in_playlist(jwt_token: str, playlist_id: str) -> dict:
     return response_dict
 
 
-def print_playlists(payload: dict) -> None:
-    for item in payload.get("data", []):
-        playlist_id = item.get("id")
-        name = item.get("attributes", {}).get("name")
-
-        if playlist_id and name:
-            print(f"{name} ({playlist_id})")
+def print_playlists(payload: dict) -> list:
+    """Return a list of [name, id] pairs for playlists in the payload."""
+    return [
+        [item.get("attributes", {}).get("name"), item.get("id")]
+        for item in payload.get("data", [])
+        if item.get("id") and item.get("attributes", {}).get("name")
+    ]
 
 
 def token_exists() -> bool:

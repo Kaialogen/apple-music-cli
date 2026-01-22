@@ -1,7 +1,7 @@
 import argparse
 import logging
 import os
-from typing import cast
+from typing import Dict, List, cast
 
 import requests
 from dotenv import load_dotenv
@@ -17,6 +17,7 @@ logger: logging.Logger = logging.getLogger(__name__)
 TEAM_ID: str | None = os.getenv("APPLE_MUSIC_TEAM_ID")
 KEY_ID: str | None = os.getenv("APPLE_MUSIC_KEY_ID")
 PRIVATE_KEY_PATH: str | None = os.getenv("APPLE_MUSIC_PRIVATE_KEY_PATH")
+BASE_URL = "https://api.music.apple.com"
 
 if not all([TEAM_ID, KEY_ID, PRIVATE_KEY_PATH]):
     raise RuntimeError(
@@ -33,14 +34,14 @@ def get_song_data(jwt: str) -> None:
 
     :param jwt: Developer token string
     """
-    url: str = "https://api.music.apple.com/v1/catalog/us/songs/203709340"
+    url: str = f"{BASE_URL}/v1/catalog/us/songs/203709340"
     headers: dict[str, str] = {"Authorization": "Bearer " + jwt}
     response: requests.Response = requests.get(url, headers=headers)
     print(response.json())
 
 
 def get_all_playlists(jwt_token) -> None:
-    url: str = "https://api.music.apple.com/v1/me/library/playlists"
+    url: str = f"{BASE_URL}/v1/me/library/playlists"
     music_user_token: str = TOKEN_PATH.read_text().strip()
     headers: dict[str, str] = {
         "Authorization": "Bearer " + jwt_token,
@@ -82,7 +83,7 @@ def get_playlist_by_id(jwt_token: str, playlist_id: str) -> None:
 
     :param jwt_token: Developer token string
     """
-    url: str = f"https://api.music.apple.com/v1/me/library/playlists/{playlist_id}"
+    url: str = f"{BASE_URL}/v1/me/library/playlists/{playlist_id}"
     music_user_token: str = TOKEN_PATH.read_text().strip()
     headers: dict[str, str] = {
         "Authorization": "Bearer " + jwt_token,
@@ -95,26 +96,39 @@ def get_playlist_by_id(jwt_token: str, playlist_id: str) -> None:
     print(response_dict)
 
 
-def get_songs_in_playlist(jwt_token: str, playlist_id: str) -> dict:
+def get_songs_in_playlist(jwt_token: str, playlist_id: str) -> Dict:
     """
     Gets songs from the specified playlist, limited to 100 songs internally.
 
     :param jwt_token: Developer token string
-    :param playlist_id: id of the playlist to query
+    :param playlist_id: Apple Music library playlist ID
+    :return: Full response dict with aggregated data
     """
-    url: str = (
-        f"https://api.music.apple.com/v1/me/library/playlists/{playlist_id}/tracks"
-    )
+    url: str | None = f"{BASE_URL}/v1/me/library/playlists/{playlist_id}/tracks"
     music_user_token: str = TOKEN_PATH.read_text().strip()
     headers: dict[str, str] = {
-        "Authorization": "Bearer " + jwt_token,
+        "Authorization": f"Bearer {jwt_token}",
         "Music-User-Token": music_user_token,
     }
-    response: requests.Response = requests.get(url, headers=headers)
-    logging.info("Found specific playlist")
 
-    response_dict = response.json()
-    return response_dict
+    all_tracks: List[dict] = []
+    while url:
+        response: requests.Response = requests.get(url, headers=headers)
+        response.raise_for_status()
+
+        payload = response.json()
+        tracks = payload.get("data", [])
+        all_tracks.extend(tracks)
+
+        logging.info("Fetched %d tracks", len(tracks))
+
+        next_path = payload.get("next")
+        if next_path:
+            url = BASE_URL + next_path
+        else:
+            url = None
+
+    return {"data": all_tracks, "total": len(all_tracks)}
 
 
 def print_playlists(payload: dict) -> list:

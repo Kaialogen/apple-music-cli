@@ -1,8 +1,8 @@
-# Apple Music CLI Playlist Saver
+# apple-music-cli
 
-Apple Music Playlist Saver is a Python CLI tool that allows users to save and manage their Apple Music playlists efficiently. This application provides features to back up playlists, export them in various formats, and share them with friends.
+apple-music-cli is a Python CLI tool that allows users to save and manage their Apple Music playlists efficiently. This application provides features to export playlists to CSV and JSON for backup or sharing.
 
-> Disclaimer: Apple Music API is an unofficial application and not affiliated with Apple.
+> Disclaimer: This project uses the official Apple Music API but is not affiliated with or endorsed by Apple.
 
 ## Features
 
@@ -12,23 +12,32 @@ Apple Music Playlist Saver is a Python CLI tool that allows users to save and ma
 
 ### Technical Details
 
+- Uses Apple Music Developer Tokens (JWT) for API access
+- Uses MusicKit JS in a local browser flow to obtain a Music User Token
+- CLI communicates with the Apple Music API via HTTPS
+
 ### Future Features
 
 - More file outputs.
-- PlaylistID can either be the "p.b16GBvbHoRkkKo4" or the user given name.
+- Playlist ID can either be the "p.b16GBvbHoRkkKo4" or the user-given name.
+
+### Project Status
+
+- This project is in active development.
+- Breaking changes may occur before v1.0.0.
 
 ## Requirements
 
 - Python 3.12+
-- Windows/MacOS/Linux (Needs to have browser for MusicKit - cannot be ran headless)
+- Windows/macOS/Linux (Needs to have a browser for MusicKit - cannot be run headless)
 
 ## Installation
 
 1. Clone the repo:
 
 ```bash
-git clone https://github.com/your/repo.git
-cd apple_music_playlist_saver
+git clone https://github.com/Kaialogen/apple-music-cli.git
+cd apple-music-cli
 ```
 
 2. Create and activate a virtual environment
@@ -39,64 +48,73 @@ uv pip install -e .
 
 ## Usage
 
+On first run, the CLI will open a browser window to authenticate your Apple Music account.
+
 Run the CLI entrypoint directly:
 
 ```python
-uv run apple_music_playlist_saver --help
+uv run apple-music-cli --help
 ```
 
 - Export a playlist to CSV:
 
 ```python
-uv run apple_music_playlist_saver export --playlist-id <PLAYLIST_ID> --format csv --out exports/playlist.csv
+uv run apple-music-cli export --playlist-id <PLAYLIST_ID> --format csv --out exports/playlist.csv
 ```
 
 Common options:
 
+```
 - --playlist-id <ID> Apple Music playlist identifier
 - --out <path> Output file or directory
 - --format <json|csv> Export format
+```
 
 You can also run the project using the Makefile targets on systems with make:
 
+```
 - make run # runs the CLI target (Makefile uses uv run python -m cli.main)
 - make test # run pytest
 - make lint # run ruff & mypy via configured targets
 - make format # apply ruff formatting
+```
 
 On Windows without make, run the equivalent commands shown above directly.
 
-## Installation
-
 ## Authentication
 
-This project expects Apple Music developer credentials. You can use a .env file at the repo root (python-dotenv is included) or set environment variables directly.
+Apple Music requires **two tokens**:
 
-- `APPLE_MUSIC_TEAM_ID`
-- `APPLE_MUSIC_KEY_ID`
-- `APPLE_MUSIC_PRIVATE_KEY_PATH` (path to your `.p8` private key)
+1. **Developer Token (JWT)**  
+   Generated using your Apple Music private key (`.p8`).
+   See Apple's docs for creating a developer key: https://developer.apple.com/documentation/applemusicapi
 
-Example .env:
+2. **Music User Token**  
+   Obtained by authenticating the user via MusicKit JS in a browser.
 
-```
-APPLE_MUSIC_TEAM_ID=YOUR_TEAM_ID
-APPLE_MUSIC_KEY_ID=YOUR_KEY_ID
-APPLE_MUSIC_PRIVATE_KEY_PATH=C:\path\to\AuthKey_XXXXXX.p8
-```
-
-See Apple's docs for creating a developer key: https://developer.apple.com/documentation/applemusicapi
+Because of this, the CLI cannot run fully headless on first use.  
+A browser window will open to authenticate the user and store a Music User Token locally for future CLI calls.
 
 ## Development & Testing
 
 - Run unit tests:
-  python -m pytest -q -v --cov
+
+```
+python -m pytest -q -v --cov
+```
 
 - Lint & type-check:
-  ruff check .
-  mypy ./cli
+
+```
+ruff check .
+mypy ./src
+```
 
 - Format:
-  ruff format .
+
+```
+ruff format .
+```
 
 Follow the existing code style (PEP 8, type hints where present).
 
@@ -108,12 +126,12 @@ If you want to contribute to this project, feel free to open an issue or a pull 
 2. Create a branch: git checkout -b feat/short-description
 3. Implement changes and add tests.
 4. Run tests and linters locally.
-5. Open a PR with a clear description and test coverage for new behavior.
+5. Open a PR with a clear description and test coverage for the new behaviour.
 
 Guidelines:
 
 - Keep commits small and focused.
-- Add/update tests for new behavior.
+- Add/update tests for new behaviour.
 - Prefer explicit typing and small utility functions.
 
 ## Reporting Issues
@@ -121,9 +139,9 @@ Guidelines:
 Open an issue with:
 
 - Steps to reproduce
-- Expected vs actual behavior
+- Expected vs actual behaviour
 - Python version and OS
-- Relevant logs / traceback
+- Relevant logs/traceback
 
 ## License
 

@@ -146,7 +146,7 @@ def token_exists() -> bool:
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        prog="Apple Music CLI Playlist Saver",
+        prog="apple-music-cli",
         description="Python CLI tool to help users save Apple Music playlist data into various file formats.",
     )
 

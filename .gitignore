@@ -226,3 +226,7 @@ __marimo__/
 
 # Token cache
 ~/.config/apple-music/
+
+# Playlist output files
+output/
+songs/

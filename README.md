@@ -12,6 +12,12 @@ Apple Music Playlist Saver is a Python CLI tool that allows users to save and ma
 
 ### Technical Details
 
+### Future Features
+
+- More file outputs.
+- pagination for responses that are greater than 100 entries.
+- PlaylistID can either be the "p.b16GBvbHoRkkKo4" or the user given name.
+
 ## Requirements
 
 - Python 3.12+

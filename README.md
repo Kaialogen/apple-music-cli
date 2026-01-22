@@ -15,7 +15,6 @@ Apple Music Playlist Saver is a Python CLI tool that allows users to save and ma
 ### Future Features
 
 - More file outputs.
-- pagination for responses that are greater than 100 entries.
 - PlaylistID can either be the "p.b16GBvbHoRkkKo4" or the user given name.
 
 ## Requirements
@@ -23,18 +22,40 @@ Apple Music Playlist Saver is a Python CLI tool that allows users to save and ma
 - Python 3.12+
 - Windows/MacOS/Linux (Needs to have browser for MusicKit - cannot be ran headless)
 
-## CLI Usage
+## Installation
+
+1. Clone the repo:
+
+```bash
+git clone https://github.com/your/repo.git
+cd apple_music_playlist_saver
+```
+
+2. Create and activate a virtual environment
+
+```bash
+uv pip install -e .
+```
+
+## Usage
 
 Run the CLI entrypoint directly:
 
 ```python
-python -m cli.main --help
+uv run apple_music_playlist_saver --help
 ```
 
 - Export a playlist to CSV:
-  ```python
-  python -m cli.main export --playlist-id <PLAYLIST_ID> --format csv --out exports/playlist.csv
-  ```
+
+```python
+uv run apple_music_playlist_saver export --playlist-id <PLAYLIST_ID> --format csv --out exports/playlist.csv
+```
+
+Common options:
+
+- --playlist-id <ID> Apple Music playlist identifier
+- --out <path> Output file or directory
+- --format <json|csv> Export format
 
 You can also run the project using the Makefile targets on systems with make:
 

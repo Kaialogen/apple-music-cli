@@ -6,7 +6,7 @@ lint-ruff:
 	uv run ruff check .
 
 lint-mypy:
-	uv run mypy ./cli
+	uv run mypy ./src
 
 format:
 	uv run ruff format .

@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 
 
-def write_songs_to_json(payload: dict, output_file: str = "output/songs.json") -> None:
+def write_songs_to_json(payload: dict, output_file: str = "output/output.json") -> None:
     songs: list[dict] = []
 
     for item in payload.get("data", []):
@@ -28,7 +28,7 @@ def write_songs_to_json(payload: dict, output_file: str = "output/songs.json") -
     )
 
 
-def write_songs_to_csv(payload: dict, output_file: str = "output/songs.csv") -> None:
+def write_songs_to_csv(payload: dict, output_file: str = "output/output.csv") -> None:
     songs: list[dict] = []
 
     for item in payload.get("data", []):

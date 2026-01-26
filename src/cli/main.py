@@ -73,8 +73,19 @@ def get_all_playlists(jwt_token) -> None:
     # Convert json to dict
     response_dict = response.json()
 
-    playlists = print_playlists(response_dict)
-    print(playlists)
+    all_playlists = dict()
+
+    for data in response_dict.values():
+        print(data)
+
+
+def print_playlists(payload: dict) -> list:
+    """Return a list of [name, id] pairs for playlists in the payload."""
+    return [
+        [item.get("attributes", {}).get("name"), item.get("id")]
+        for item in payload.get("data", [])
+        if item.get("id") and item.get("attributes", {}).get("name")
+    ]
 
 
 def get_playlist_by_id(jwt_token: str, playlist_id: str) -> None:
@@ -129,15 +140,6 @@ def get_songs_in_playlist(jwt_token: str, playlist_id: str) -> Dict:
             url = None
 
     return {"data": all_tracks, "total": len(all_tracks)}
-
-
-def print_playlists(payload: dict) -> list:
-    """Return a list of [name, id] pairs for playlists in the payload."""
-    return [
-        [item.get("attributes", {}).get("name"), item.get("id")]
-        for item in payload.get("data", [])
-        if item.get("id") and item.get("attributes", {}).get("name")
-    ]
 
 
 def token_exists() -> bool:

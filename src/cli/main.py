@@ -1,6 +1,7 @@
 import argparse
 import logging
 import os
+from datetime import datetime
 from typing import Dict, List, cast
 
 import requests
@@ -35,7 +36,7 @@ def get_song_data(jwt: str) -> None:
     :param jwt: Developer token string
     """
     url: str = f"{BASE_URL}/v1/catalog/us/songs/203709340"
-    headers: dict[str, str] = {"Authorization": "Bearer " + jwt}
+    headers: Dict[str, str] = {"Authorization": "Bearer " + jwt}
     response: requests.Response = requests.get(url, headers=headers)
     print(response.json())
 
@@ -43,7 +44,7 @@ def get_song_data(jwt: str) -> None:
 def get_all_playlists(jwt_token) -> None:
     url: str = f"{BASE_URL}/v1/me/library/playlists"
     music_user_token: str = TOKEN_PATH.read_text().strip()
-    headers: dict[str, str] = {
+    headers: Dict[str, str] = {
         "Authorization": "Bearer " + jwt_token,
         "Music-User-Token": music_user_token,
     }
@@ -70,16 +71,34 @@ def get_all_playlists(jwt_token) -> None:
             print(f"HTTP error occurred: {e}")
         return None
 
-    # Convert json to dict
+    all_playlists: List[Dict] = []
+    output: List[Dict] = []
+
     response_dict = response.json()
 
-    all_playlists = dict()
+    playlists = response_dict.get("data", [])
+    all_playlists.extend(playlists)
 
-    for data in response_dict.values():
-        print(data)
+    for playlists in all_playlists:
+        attributes = playlists.get("attributes", {})
+        if not attributes:
+            continue
+
+        dt = datetime.fromisoformat(attributes.get("dateAdded"))
+        date = dt.strftime("%d-%m-%Y")
+
+        playlist = {
+            "name": attributes.get("name"),
+            "id": playlists.get("id"),
+            "dateAdded": date,
+        }
+
+        output.append(playlist)
+
+    return output
 
 
-def print_playlists(payload: dict) -> list:
+def print_playlists(payload: Dict) -> List:
     """Return a list of [name, id] pairs for playlists in the payload."""
     return [
         [item.get("attributes", {}).get("name"), item.get("id")]
@@ -96,7 +115,7 @@ def get_playlist_by_id(jwt_token: str, playlist_id: str) -> None:
     """
     url: str = f"{BASE_URL}/v1/me/library/playlists/{playlist_id}"
     music_user_token: str = TOKEN_PATH.read_text().strip()
-    headers: dict[str, str] = {
+    headers: Dict[str, str] = {
         "Authorization": "Bearer " + jwt_token,
         "Music-User-Token": music_user_token,
     }
@@ -117,12 +136,12 @@ def get_songs_in_playlist(jwt_token: str, playlist_id: str) -> Dict:
     """
     url: str | None = f"{BASE_URL}/v1/me/library/playlists/{playlist_id}/tracks"
     music_user_token: str = TOKEN_PATH.read_text().strip()
-    headers: dict[str, str] = {
+    headers: Dict[str, str] = {
         "Authorization": f"Bearer {jwt_token}",
         "Music-User-Token": music_user_token,
     }
 
-    all_tracks: List[dict] = []
+    all_tracks: List[Dict] = []
     while url:
         response: requests.Response = requests.get(url, headers=headers)
         response.raise_for_status()
@@ -183,7 +202,8 @@ def main() -> None:
     elif args.COMMAND == "all-playlists":
         if not token_exists():
             start_auth_flow()
-        get_all_playlists(jwt)
+        output = get_all_playlists(jwt)
+        print(output)
     elif args.COMMAND == "playlist" and args.playlistID:
         if not token_exists():
             start_auth_flow()

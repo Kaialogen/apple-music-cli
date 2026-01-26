@@ -28,17 +28,47 @@ if not all([TEAM_ID, KEY_ID, PRIVATE_KEY_PATH]):
     )
 
 
-def get_song_data(jwt: str) -> None:
+def get_song_data(jwt_token: str) -> None:
     """
     Test function that should take a developer token and a known good URL and return data from the public catalogue.
     "Born in the U.S.A" by Bruce Springsteen should print to the terminal if the developer token is correct.
 
-    :param jwt: Developer token string
+    :param jwt_token: A developer JWT used as the Bearer token in the Authorization header.
     """
     url: str = f"{BASE_URL}/v1/catalog/us/songs/203709340"
-    headers: Dict[str, str] = {"Authorization": "Bearer " + jwt}
-    response: requests.Response = requests.get(url, headers=headers)
-    print(response.json())
+    headers: Dict[str, str] = {"Authorization": "Bearer " + jwt_token}
+
+    try:
+        response: requests.Response = requests.get(url, headers=headers, timeout=10)
+        response.raise_for_status()
+        logging.info("Got song")
+    except requests.exceptions.HTTPError as e:
+        status = getattr(e.response, "status_code", None)
+        if status == 401:
+            print("Unauthorized: Incorrect Authorization header or token expired.")
+        elif status == 403:
+            print("Forbidden: Invalid or insufficient authentication.")
+        elif status == 429:
+            print("Too Many Requests: Rate limited by Apple servers.")
+        elif status == 500:
+            print("Internal Server Error: An error occurred on the server.")
+        else:
+            print(f"HTTP error occurred: {e}")
+        logging.exception("HTTP error fetching playlists")
+        return None
+    except requests.exceptions.RequestException as e:
+        logging.exception("Network error while fetching playlists")
+        print(f"Network error while fetching playlists: {e}")
+        return None
+
+    try:
+        response_dict = response.json()
+    except ValueError:
+        logging.exception("Failed to parse JSON response")
+        print("Invalid JSON received from Apple Music API.")
+        return None
+
+    print(response_dict)
 
 
 def get_all_playlists(jwt_token: str) -> List[Dict[str, str]] | None:

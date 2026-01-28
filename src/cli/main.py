@@ -73,7 +73,7 @@ def get_song_data(jwt_token: str) -> None:
 
 def get_all_playlists(jwt_token: str) -> List[Dict[str, str]] | None:
     """
-    Retrieve all Apple Music library playlists for the authenticated user.
+    Retrieve all Apple Music library playlists for the authenticated user. Limited to 25 playlists internally.
 
     Sends a GET request to the Apple Music API endpoint for the current user's library playlists,
     using the provided developer JWT for the Authorization header and reading the Music-User-Token

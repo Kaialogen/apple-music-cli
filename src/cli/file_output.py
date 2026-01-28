@@ -1,29 +1,15 @@
 import csv
 import json
 from pathlib import Path
+from typing import Dict, List
 
 
-def write_songs_to_json(payload: dict, output_file: str = "output/output.json") -> None:
-    songs: list[dict] = []
-
-    for item in payload.get("data", []):
-        attributes = item.get("attributes", {})
-        if not attributes:
-            continue
-
-        song = {
-            "name": attributes.get("name"),
-            "artistName": attributes.get("artistName"),
-            "albumName": attributes.get("albumName"),
-            "genreNames": attributes.get("genreNames", []),
-            "releaseDate": attributes.get("releaseDate"),
-        }
-
-        songs.append(song)
-
+def write_songs_to_json(
+    payload: List[Dict], output_file: str = "output/output.json"
+) -> None:
     # Write to JSON file
     Path(output_file).write_text(
-        json.dumps(songs, indent=2, ensure_ascii=False),
+        json.dumps(payload, indent=2, ensure_ascii=False),
         encoding="utf-8",
     )
 

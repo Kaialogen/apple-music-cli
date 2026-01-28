@@ -59,13 +59,13 @@ uv run apple-music-cli --help
 - Export a playlist to CSV:
 
 ```python
-uv run apple-music-cli export --playlist-id <PLAYLIST_ID> --format csv --out exports/playlist.csv
+uv run apple-music-cli export --playlistID <PLAYLIST_ID> --format csv --out exports/playlist.csv
 ```
 
 Common options:
 
 ```
-- --playlist-id <ID> Apple Music playlist identifier
+- --playlistID <ID> Apple Music playlist identifier
 - --out <path> Output file or directory
 - --format <json|csv> Export format
 ```

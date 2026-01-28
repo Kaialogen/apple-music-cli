@@ -177,20 +177,60 @@ def get_all_playlists(jwt_token: str) -> List[Dict[str, str]] | None:
 
 def get_playlist_by_id(jwt_token: str, playlist_id: str) -> None:
     """
-    Docstring for get_playlist_by_id
+    Retrieve a specified playlist for the authenticated user.
 
-    :param jwt_token: Developer token string
+    :param jwt_token: A developer JWT used as the Bearer token in the Authorization header.
     """
     url: str = f"{BASE_URL}/v1/me/library/playlists/{playlist_id}"
-    music_user_token: str = TOKEN_PATH.read_text().strip()
+
+    try:
+        music_user_token: str = TOKEN_PATH.read_text().strip()
+        if not music_user_token:
+            logging.error("Music user token is empty.")
+            print("Music user token is missing. Please authenticate.")
+            return None
+    except Exception as e:
+        logging.exception(
+            f"Failed to read Music-User-Token from TOKEN_PATH. Error: {e}"
+        )
+        print("Unable to read Music-User-Token. Make sure you have authenticated.")
+        return None
+
     headers: Dict[str, str] = {
         "Authorization": "Bearer " + jwt_token,
         "Music-User-Token": music_user_token,
     }
-    response: requests.Response = requests.get(url, headers=headers)
-    logging.info("Found specific playlist")
 
-    response_dict = response.json()
+    try:
+        response: requests.Response = requests.get(url, headers=headers, timeout=10)
+        response.raise_for_status()
+        logging.info("Found playlist")
+    except requests.exceptions.HTTPError as e:
+        status = getattr(e.response, "status_code", None)
+        if status == 401:
+            print("Unauthorized: Incorrect Authorization header or token expired.")
+        elif status == 403:
+            print("Forbidden: Invalid or insufficient authentication.")
+        elif status == 429:
+            print("Too Many Requests: Rate limited by Apple servers.")
+        elif status == 500:
+            print("Internal Server Error: An error occurred on the server.")
+        else:
+            print(f"HTTP error occurred: {e}")
+        logging.exception("HTTP error fetching playlists")
+        return None
+    except requests.exceptions.RequestException as e:
+        logging.exception("Network error while fetching playlists")
+        print(f"Network error while fetching playlists: {e}")
+        return None
+
+    try:
+        response_dict = response.json()
+    except ValueError:
+        logging.exception("Failed to parse JSON response")
+        print("Invalid JSON received from Apple Music API.")
+        return None
+
     print(response_dict)
 
 

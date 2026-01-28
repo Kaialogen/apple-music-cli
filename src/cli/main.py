@@ -397,25 +397,45 @@ def main() -> None:
 
     jwt: str = generate_jwt(secret_key_file_path, team_id, key_id)
 
-    if args.COMMAND == "test":
+    def _write_output(data):
+        if data is None:
+            print("No data to write.")
+            return
+        fmt = (args.format or "json").lower()
+        if fmt == "json":
+            write_songs_to_json(data, args.output)
+        elif fmt == "csv":
+            write_songs_to_csv(data, args.output)
+        else:
+            print(f"Unknown format: {args.format}")
+
+    cmd = (args.COMMAND or "").lower()
+
+    if cmd == "test":
         get_song_data(jwt)
-    elif args.COMMAND == "all-playlists":
+        return
+
+    if cmd == "all-playlists":
         if not token_exists():
             start_auth_flow()
         output = get_all_playlists(jwt)
-        print(output)
-    elif args.COMMAND == "playlist" and args.playlistID:
+        _write_output(output)
+        return
+
+    if cmd in {"playlist", "export"}:
+        if not args.playlistID:
+            print("playlistID is required for this command.")
+            return
         if not token_exists():
             start_auth_flow()
-        get_playlist_by_id(jwt, args.playlistID)
-    elif args.COMMAND == "export" and args.playlistID:
-        if not token_exists():
-            start_auth_flow()
-        output = get_songs_in_playlist(jwt, args.playlistID)
-        if args.format == "json":
-            write_songs_to_json(output, args.output)
-        elif args.format == "csv":
-            write_songs_to_csv(output, args.output)
+        if cmd == "playlist":
+            output = get_playlist_by_id(jwt, args.playlistID)
+        else:
+            output = get_songs_in_playlist(jwt, args.playlistID)
+        _write_output(output)
+        return
+
+    print(f"Unknown command: {args.COMMAND}")
 
 
 if __name__ == "__main__":

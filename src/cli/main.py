@@ -2,7 +2,7 @@ import argparse
 import logging
 import os
 from datetime import datetime
-from typing import Dict, List, cast
+from typing import Any, Dict, List, cast
 
 import requests
 from dotenv import load_dotenv
@@ -71,7 +71,7 @@ def get_song_data(jwt_token: str) -> None:
     print(response_dict)
 
 
-def get_all_playlists(jwt_token: str) -> List[Dict[str, str]] | None:
+def get_all_playlists(jwt_token: str) -> List[Dict[Any, Any]] | None:
     """
     Retrieve all Apple Music library playlists for the authenticated user. Limited to 25 playlists internally.
 
@@ -143,7 +143,7 @@ def get_all_playlists(jwt_token: str) -> List[Dict[str, str]] | None:
         print("Unexpected response format from Apple Music API.")
         return None
 
-    output: List[Dict[str, str]] = []
+    output: List[Dict[str | None, str | None]] = []
     for item in playlists:
         if not isinstance(item, dict):
             continue
@@ -165,7 +165,7 @@ def get_all_playlists(jwt_token: str) -> List[Dict[str, str]] | None:
                 )
                 date_str = None
 
-        playlist = {
+        playlist: Dict[str | None, str | None] = {
             "name": name,
             "id": pid,
             "dateAdded": date_str,
@@ -175,7 +175,7 @@ def get_all_playlists(jwt_token: str) -> List[Dict[str, str]] | None:
     return output
 
 
-def get_playlist_by_id(jwt_token: str, playlist_id: str) -> List[Dict[str, str]] | None:
+def get_playlist_by_id(jwt_token: str, playlist_id: str) -> List[Dict[Any, Any]] | None:
     """
     Retrieve a specified playlist for the authenticated user.
 
@@ -237,7 +237,7 @@ def get_playlist_by_id(jwt_token: str, playlist_id: str) -> List[Dict[str, str]]
         print("Unexpected response format from Apple Music API.")
         return None
 
-    output: List[Dict[str, str]] = []
+    output: List[Dict[str | None, str | None]] = []
     for item in playlists:
         if not isinstance(item, dict):
             continue
@@ -259,7 +259,7 @@ def get_playlist_by_id(jwt_token: str, playlist_id: str) -> List[Dict[str, str]]
                 )
                 date_str = None
 
-        playlist = {
+        playlist: Dict[str | None, str | None] = {
             "name": name,
             "id": pid,
             "dateAdded": date_str,
@@ -268,7 +268,7 @@ def get_playlist_by_id(jwt_token: str, playlist_id: str) -> List[Dict[str, str]]
     return output
 
 
-def get_songs_in_playlist(jwt_token: str, playlist_id: str) -> List[Dict]:
+def get_songs_in_playlist(jwt_token: str, playlist_id: str) -> List[Dict] | None:
     """
     Gets songs from the specified playlist, limited to 100 songs internally.
 
@@ -276,7 +276,7 @@ def get_songs_in_playlist(jwt_token: str, playlist_id: str) -> List[Dict]:
     :param playlist_id: Apple Music library playlist ID
     :return: Full response dict with aggregated data
     """
-    url: str = f"{BASE_URL}/v1/me/library/playlists/{playlist_id}/tracks"
+    url: str | None = f"{BASE_URL}/v1/me/library/playlists/{playlist_id}/tracks"
 
     try:
         music_user_token: str = TOKEN_PATH.read_text().strip()

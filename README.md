@@ -8,7 +8,7 @@ apple-music-cli is a Python CLI tool that allows users to save and manage their 
 
 - Backup Apple Music playlists to local storage.
 - Export playlists to CSV and JSON.
-- Lightweight CLI for scripted backups
+- Lightweight CLI for scripted backups.
 
 ### Technical Details
 
@@ -52,34 +52,44 @@ On first run, the CLI will open a browser window to authenticate your Apple Musi
 
 Run the CLI entrypoint directly:
 
-```python
+```bash
 uv run apple-music-cli --help
 ```
 
+```bash
+usage: apple-music-cli [-h] [--playlistID PLAYLISTID] [-f FORMAT] [-o OUTPUT] COMMAND
+
+Python CLI tool to help users save Apple Music playlist data into various file formats.
+
+positional arguments:
+  COMMAND               Command to execute: Accepted commands - test, all-playlists, export, playlist
+
+options:
+  -h, --help            show this help message and exit
+  --playlistID PLAYLISTID
+                        id of playlist to backup
+  -f FORMAT, --format FORMAT
+                        output file format
+  -o OUTPUT, --output OUTPUT
+                        Output file.
+```
+
+### Commands
+
+```bash
+test # Tests your developer credentials on a known good endpoint.
+all-playlists # Returns details on all playlists in your library.
+playlist # Returns details about the specified playlist. Requires a playlist ID.
+export # Returns all songs from the specified playlist. Requires a playlist ID.
+```
+
+### Examples
+
 - Export a playlist to CSV:
 
-```python
+```bash
 uv run apple-music-cli export --playlistID <PLAYLIST_ID> --format csv --out exports/playlist.csv
 ```
-
-Common options:
-
-```
-- --playlistID <ID> Apple Music playlist identifier
-- --out <path> Output file or directory
-- --format <json|csv> Export format
-```
-
-You can also run the project using the Makefile targets on systems with make:
-
-```
-- make run # runs the CLI target (Makefile uses uv run python -m cli.main)
-- make test # run pytest
-- make lint # run ruff & mypy via configured targets
-- make format # apply ruff formatting
-```
-
-On Windows without make, run the equivalent commands shown above directly.
 
 ## Authentication
 
